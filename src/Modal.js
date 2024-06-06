@@ -1,3 +1,4 @@
+// src/Modal.js
 import React, { useState } from 'react';
 import "./Modal.css";
 
@@ -24,6 +25,7 @@ function Modal({ show, onClose, title }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Form Data:", formData);
+    onClose();  // Close the modal after submitting
     // Handle data submission here
   };
 
@@ -159,7 +161,7 @@ function Modal({ show, onClose, title }) {
               />
             </div>
             <div className="detail">
-              <button type="submit" onClick={onClose} className="submit-button">
+              <button type="submit" className="submit-button">
                 Submit
               </button>
             </div>
