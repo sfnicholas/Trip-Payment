@@ -1,34 +1,49 @@
 import React, { useState } from "react";
 import Modal from "./Modal";
 import "./App.css";
-import PersonCard from "./PersonCard";
 
 function App() {
   const [addReceipt, setAddReceipt] = useState(false);
+  const [newPersonName, setNewPersonName] = useState("");
+  const [people, setPeople] = useState([]);
 
   const toggleModal = (setModal) => {
-    // setShowModal(!showModal);
     setModal((prevState) => !prevState);
   };
 
-  const peopleData = [
-    {
-      name: "A",
-      transactions: ["A→C: $5000 and ¥0", "A→B: $710 and ¥550"],
-    },
-    {
-      name: "B",
-      transactions: ["B→A: $1090 and ¥5000", "B→C: $3500 and ¥0"],
-    },
-    {
-      name: "C",
-      transactions: ["C→A: $1240 and ¥5000", "C→B: $920 and ¥660"],
-    },
-    {
-      name: "D",
-      transactions: [],
-    },
-  ];
+  const initializeTransactions = (name) => {
+    return people.map((person) => ({
+      from: name,
+      to: person.name,
+      amount: "¥0",
+    }));
+  };
+
+  const updateExistingPeople = (name) => {
+    setPeople(prevPeople =>
+      prevPeople.map(person => ({
+        ...person,
+        transactions: [...person.transactions, { from: person.name, to: name, amount: "¥0" }]
+      }))
+    );
+  };
+
+  const addPeople = (name) => {
+    if (!name.trim()) {
+      return;
+    }
+    const transactions = initializeTransactions(name);
+    const newPerson = { name: name, transactions: transactions };
+    updateExistingPeople(name);
+    setPeople((prevPeople) => [...prevPeople, newPerson]);
+    setNewPersonName(""); 
+  }
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      addPeople(newPersonName);
+    }
+  };
 
   return (
     <div className="App">
@@ -44,19 +59,34 @@ function App() {
       </button>
       <div className="People">
         <h2>People</h2>
-        {peopleData.map((person, index) => (
-          <PersonCard
-            key={index}
-            name={person.name}
-            transactions={person.transactions}
-          />
+        {people.map((person, index) => (
+          <div className="person-card" key={index}>
+            <h2 className="person-name">{person.name}</h2>
+            <div className="transactions">
+              {person.transactions.map((transaction, index) => (
+                <p key={index}>
+                  {transaction.from}→{transaction.to} {transaction.amount}
+                </p>
+              ))}
+            </div>
+          </div>
         ))}
         <div className="new-person-card">
-          <button className="add-button">+ New</button>
+          <input
+            type="text"
+            value={newPersonName}
+            onChange={(event) => setNewPersonName(event.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Add new people"
+          />
+          <button
+            className="add-button"
+            onClick={() => addPeople(newPersonName)}
+          >
+            Add +
+          </button>
         </div>
       </div>
-            
-      {/*add receipt button*/}
 
       <Modal
         show={addReceipt}
