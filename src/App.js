@@ -11,7 +11,7 @@ function App() {
     setModal((prevState) => !prevState);
   };
 
-  const initializeTransactions = (name) => {
+  const initializeTransactionsSummary = (name) => {
     return people.map((person) => ({
       from: name,
       to: person.name,
@@ -23,7 +23,7 @@ function App() {
     setPeople(prevPeople =>
       prevPeople.map(person => ({
         ...person,
-        transactions: [...person.transactions, { from: person.name, to: name, amount: "¥0" }]
+        transactionsSummary: [...person.transactionsSummary, { from: person.name, to: name, amount: "¥0" }]
       }))
     );
   };
@@ -32,8 +32,8 @@ function App() {
     if (!name.trim()) {
       return;
     }
-    const transactions = initializeTransactions(name);
-    const newPerson = { name: name, transactions: transactions };
+    const transactionsSummary = initializeTransactionsSummary(name);
+    const newPerson = { name: name, transactionsSummary: transactionsSummary };
     updateExistingPeople(name);
     setPeople((prevPeople) => [...prevPeople, newPerson]);
     setNewPersonName(""); 
@@ -62,10 +62,10 @@ function App() {
         {people.map((person, index) => (
           <div className="person-card" key={index}>
             <h2 className="person-name">{person.name}</h2>
-            <div className="transactions">
-              {person.transactions.map((transaction, index) => (
+            <div className="transactionsSummary">
+              {person.transactionsSummary.map((transactionSummary, index) => (
                 <p key={index}>
-                  {transaction.from}→{transaction.to} {transaction.amount}
+                  {transactionSummary.from}→{transactionSummary.to} {transactionSummary.amount}
                 </p>
               ))}
             </div>
