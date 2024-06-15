@@ -1,8 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Modal from "./Modal";
 import "./App.css";
+import * as FirebaseConnection from "./firebase-connection"; 
+
+const DEFAULT_GROUP_ID = "defaultGroupId"; 
 
 function App() {
+
+//   useEffect(() => {
+//     FirebaseConnection.createGroup().catch(console.error);
+//   }, []);
+
+//   return (
+//     <div className="App">
+//       <h1>Create Group Test</h1>
+//     </div>
+//   );
+// }
+
   const [addReceipt, setAddReceipt] = useState(false);
   const [newPersonName, setNewPersonName] = useState("");
   const [people, setPeople] = useState([]);
@@ -11,6 +26,7 @@ function App() {
     setModal((prevState) => !prevState);
   };
 
+  // transaction summary functions
   const initializeTransactionsSummary = (name) => {
     return people.map((person) => ({
       from: name,
@@ -28,15 +44,23 @@ function App() {
     );
   };
 
-  const addPeople = (name) => {
+  const addPeople = async (name) => {
     if (!name.trim()) {
       return;
     }
-    const transactionsSummary = initializeTransactionsSummary(name);
-    const newPerson = { name: name, transactionsSummary: transactionsSummary };
-    updateExistingPeople(name);
-    setPeople((prevPeople) => [...prevPeople, newPerson]);
-    setNewPersonName(""); 
+    try {
+      const transactionsSummary = initializeTransactionsSummary(name);
+      const newPerson = { name: name, transactionsSummary: transactionsSummary };
+
+      // Add person to Firebase
+      await FirebaseConnection.addPersonToGroup(DEFAULT_GROUP_ID, name);  
+      updateExistingPeople(name);
+      setPeople((prevPeople) => [...prevPeople, newPerson]);
+      setNewPersonName(""); 
+    }
+    catch (error) {
+      console.error("Failed to add person to Firebase:", error);
+    }
   }
 
   const handleKeyDown = (event) => {

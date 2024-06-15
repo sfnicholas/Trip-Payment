@@ -1,4 +1,5 @@
 import { db } from './firebase-config';
+import { collection, doc, setDoc, updateDoc } from "firebase/firestore";
 
 /*
 db structure: 
@@ -17,13 +18,36 @@ db structure:
     - transaction3
 */
 
+const createGroup = async () => {
+  try {
+    const groupsCol = collection(db, "groups");
+    const groupDocRef = doc(groupsCol);
+    await setDoc(groupDocRef, {
+      id: groupDocRef.id,  // Use the automatically generated document ID
+      groupName: "Group 1",
+      description: "This is Group 1"
+    });
+    console.log("Group created with ID:", groupDocRef.id);
+  } catch (error) {
+    console.error("Error creating group:", error);
+  }
+};
+
 const addPersonToGroup = async (groupId, personName) => {
-  const groupRef = db.collection('groups').doc(groupId);
-  const personRef = groupRef.collection('people').doc();
-  await personRef.set({
-    name: personName,
-    transactions: []
-  });
+  try {
+    console.log(db);
+    const groupDocRef = doc(db, "groups", groupId);
+    const peopleColRef = collection(groupDocRef, "people"); 
+    const personDocRef = doc(peopleColRef); 
+    // await updateDoc(groupDocRef, updatedData);
+    await setDoc(personDocRef, {
+      name: personName,
+      transactions: []
+    });
+  }
+  catch (error) {
+    console.error("Error adding person to group:", error);
+  }
 };
 
 const addTransactionToPerson = async (groupId, personId, transactionData) => {
@@ -33,3 +57,5 @@ const addTransactionToPerson = async (groupId, personId, transactionData) => {
 
   await transactionRef.set(transactionData);
 };
+
+export { createGroup, addPersonToGroup, addTransactionToPerson};
