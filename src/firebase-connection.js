@@ -2,36 +2,12 @@ import { db } from './firebase-config';
 import { collection, doc, setDoc, updateDoc, getDoc} from "firebase/firestore";
 
 /*
-db structure: 
-  V2
-
   Trips Collection
   /trips/{tripId}
   - name: "Trip to Vegas"
   - startDate: "2024-01-01"
   - endDate: "2024-01-05"z
   - participants: ["A", "B", "C"]
-
-  Expenses Subcollection
-  /trips/{tripId}/expenses/{expenseId}
-    - description: "Dinner at XYZ"
-    - amount: 100
-    - payer: "A"
-    - date: "2024-01-02"
-    - owed: {
-        "B": 50,
-        "C": 50
-      }
-
-  /trips/{tripId}/summaries/{userId}
-  - owes: {
-      "B": 30,
-      "C": 70
-    }
-  - owedBy: {
-      "B": 50,
-      "C": 20
-    }
 */
 /**
  * Creates a new trip and stores it in the Firestore database.
@@ -78,6 +54,21 @@ export const getTrip = async (tripId) => {
     console.error("Error fetching trip data:", error);
   }
 }
+
+// Expenses Collection
+const updateOwesAmount = async (tripId, fromPerson, toPerson, newAmount) => {
+  const tripSummaryRef = doc(db, "trips", tripId, "summaries", fromPerson);
+  const owesField = `owes.${toPerson}`;
+
+  try {
+    await updateDoc(tripSummaryRef, {
+      [owesField]: newAmount
+    });
+    console.log("Updated owes amount successfully");
+  } catch (error) {
+    console.error("Error updating owes amount:", error);
+  }
+};
 
 // export const addExpenseToTrip = async (tripId, expenseDetails) => {
 //   try {

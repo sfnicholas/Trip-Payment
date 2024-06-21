@@ -104,3 +104,8 @@ h1 {
 .transactionsSummary p {
   margin: 5px 0;
 }
+
+.error-message {
+  color: red;
+  margin-top: 10px;
+}

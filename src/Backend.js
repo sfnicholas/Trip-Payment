@@ -60,7 +60,7 @@ Final=original-discount+tax
     - payed_total_amonut: 80
     - payer: "A"
     - people_involved: ["A", "B", "C"]
-    - payment_option: "equal distribution" (default) | "exact amount simplify version" | exact amount detail version
+    - split_option: "equal distribution" (default) | "exact amount simplify version" | exact amount detail version
     - date: "2024-01-02"
     - self_claimed_is_complete = true | false
     - is_completed  = true | false
@@ -68,7 +68,7 @@ Final=original-discount+tax
     - tax_percentage: 10
     - tip_percentage: 0
     - discount_percentage: 0
-    - category:   ["food", "transporation", "entertainment", "resort", "shopping", "other"] +add new category
+    - category:   ["food", "transpotation", "entertainment", "resort", "shopping", "other"] +add new category
     - notes: "Some notes"
     - simplify_verion:
         {
@@ -126,7 +126,7 @@ export const createExpenses = async (name = "", startDate = "", endDate = "", pa
 
 /*
   /trips/{tripId}/summaries
-    {A: {
+    A: {
       - owes: {
           "B": 30,
           "C": 70

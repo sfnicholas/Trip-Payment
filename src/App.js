@@ -1,32 +1,17 @@
 import React, { useState, useEffect } from "react";
-import Modal from "./Modal";
+import ExpenseForm from "./ExpenseForm";
 import "./App.css";
 import * as FirebaseConnection from "./firebase-connection";
 // import * as Backend from "./Backend";
-
-const tripDetails = {
-  name: "Trip to Vegas",
-  // startDate: "2024-01-01",
-  // endDate: "2024-01-05",
-  participants: [],
-};
-
-const expenseDetails = {
-  description: "Dinner at XYZ",
-  amount: 100,
-  payer: "A", // Assume 'A' is a participant ID or name
-  date: "2024-01-02",
-  owed: {
-    B: 50, // Amount owed by B to A
-    C: 50, // Amount owed by C to A
-  },
-};
 
 function App() {
   const [addReceipt, setAddReceipt] = useState(false);
   const [newPersonName, setNewPersonName] = useState("");
   const [people, setPeople] = useState([]);
+  const [errorMessage, setErrorMessage] = useState('');
   const [tripId, setTripId] = useState("");
+  const [defaultSettings, setDefaultSettings] = useState(
+    {taxRate: 13, tipsRate: 0, discountRate: 0});
 
   // initial page loading
   useEffect(() => {
@@ -60,20 +45,44 @@ function App() {
 
   const addPerson = async (name) => {
     try {
-      const tripDetails = { participants: [...people, name] };
-      await FirebaseConnection.updateTripFields(tripId, tripDetails);
+      if (people.includes(name)){
+        console.log("Person already exists");
+        setErrorMessage("Person already exists");
+        return;
+      }
       setPeople([...people, name]);
       setNewPersonName("");
+      const tripDetails = { participants: [...people, name] };
+      await FirebaseConnection.updateTripFields(tripId, tripDetails);
     } catch (error) {
       console.error("Error adding person to trip:", error);
+      setErrorMessage("Failed to add person to the trip: " + error.message);
     }
   };
+
+  // // Expenses
+  // function ExpenseForm({ show, onClose }) {
+  //   if (!show) return null;
+  
+  //   return (
+  //     <div className="modal-backdrop">
+  //       <div className="modal-content">
+  //         <span className="close-button" onClick={onClose}>&times;</span>
+  //         <h2>Create New Expense</h2>
+  //         {/* Form Fields Here */}
+  //         <button onClick={onClose}>Submit</button>
+  //         <button onClick={onClose}>Save for Later</button>
+  //       </div>
+  //     </div>
+  //   );
+  // }
+  
 
   return (
     <div className="App">
       <h1>AA Expenses Tracker</h1>
       <button onClick={() => toggleModal(setAddReceipt)} className="button">
-        Add Receipt
+        Create New Expenses
       </button>
       <button onClick={() => toggleModal()} className="button">
         Update Receipts
@@ -116,14 +125,10 @@ function App() {
           >
             Add +
           </button>
+          {errorMessage && <div className="error-message">{errorMessage}</div>}
         </div>
       </div>
-
-      <Modal
-        show={addReceipt}
-        onClose={() => toggleModal(setAddReceipt)}
-        title="My Modal"
-      ></Modal>
+      {addReceipt && <ExpenseForm show={addReceipt} onClose={() => setAddReceipt(false)} config = {{...defaultSettings, people}}/>}
     </div>
   );
 }
